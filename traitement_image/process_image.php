@@ -12,17 +12,19 @@ if (isset($_GET['fichier']) && isset($_GET['image'])){
 
 
 function floute_image($name_file,$name_image){
-
-	$name_image = 'imagesrecues/'.$name_image;
-	$name_file = 'hocr/'.$name_file;
+$basedir = '../mesure_efficacite/imagesrecues/';
+$basedirhocr= '../mesure_efficacite/hocr/';
+$basedirfinal =  '../mesure_efficacite/images_blanco/';
+	$name_image = $name_image;
+	$name_file = $name_file;
 echo "<br>image: ".$name_image;
 echo "<br>fichier : ".$name_file;
 
-	$im = LoadJpeg($name_image);
+	$im = LoadJpeg($basedir.$name_image);
 	$white = imagecolorallocate($im,255,255,255); 
 	
 	$doc = new DOMDocument();
-	$ok = $doc->loadHTMLFile($name_file);
+	$ok = $doc->loadHTMLFile($basedirhocr.$name_file);
 echo "<br>ouverture du fichier : ".$ok;
 	
 	$searchNode = $doc->getElementsByTagName( "span" ); 
@@ -44,7 +46,7 @@ echo "<br>ouverture du fichier : ".$ok;
 	
 	$pos_point = strpos($name_image,".");
 	$new_name_image = substr($name_image,0,$pos_point).'_blanc.'.substr($name_image,$pos_point+1);
-	imagejpeg($im, $new_name_image);
+	imagejpeg($im, $basedirfinal.$new_name_image);
 	imagedestroy($im);
 
 echo "<br>FIN du traitement.";

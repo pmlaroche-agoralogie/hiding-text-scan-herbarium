@@ -79,7 +79,35 @@ function enregistre_base(){
 	return $resultat_requete;
 }
 
+function get_nom_image_jpg($id)
+{
 
+        $connect_db = se_connecter();
+        $requetesql = "SELECT * FROM images_sources WHERE uid = $id";
+      $resultat = mysql_query($requetesql,$connect_db);
+ if(mysql_num_rows($resultat)==1){
+                $row = mysql_fetch_assoc($resultat);
+                return ($row['OCCURRENCEID'].'.jpg');
+
+        }
+else
+return '';
+}
+function recuperer_image($id)
+{
+
+	$connect_db = se_connecter();
+	$requetesql = "SELECT * FROM images_sources WHERE uid = $id";
+      $resultat = mysql_query($requetesql,$connect_db);
+ if(mysql_num_rows($resultat)==1){
+                $row = mysql_fetch_assoc($resultat);
+                $url = $row['IDENTIFIER'];
+		$fichier = file_get_contents($url);
+		file_put_contents('imagesrecues/'.$row['OCCURRENCEID'].'.jpg',$fichier);
+echo $row['OCCURRENCEID'];
+
+        }
+}
 
 function get_zones_image($fichier_image){
 
@@ -94,6 +122,7 @@ function get_zones_image($fichier_image){
 	return $zones;
 	
 }
+
 
 function get_nom_image($uid){
 	$nom_image = '';
@@ -242,7 +271,7 @@ function get_integer($variable){
 }
 
 function se_connecter(){
-
+global $SERVEUR,$USER,$MDP, $BASE;
 
 	// connexion a la BDD
 	$connect_db = mysql_connect($SERVEUR,$USER,$MDP); 
