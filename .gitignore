@@ -3,3 +3,6 @@
 .project
 .settings/
 mesure_efficacite/connexion-data.php
+/mesure_efficacite/hocr/
+/mesure_efficacite/images_blanco/
+/mesure_efficacite/imagesrecues/
