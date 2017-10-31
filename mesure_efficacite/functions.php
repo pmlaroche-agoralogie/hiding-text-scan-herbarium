@@ -1,7 +1,12 @@
 <?php
 include ("connexion-data.php");
 
+define("MIN_ZONE_HOCR",2);
+define("MAX_ZONE_HOCR",20);
+
 function init_variables($repertoire){
+
+	$erreur = '';
 	if ($repertoire != ''){	
 		if (substr($repertoire,strlen($repertoire)-1,1) != '/'){
 			$repertoire = $repertoire."/";
@@ -31,17 +36,18 @@ function init_variables($repertoire){
 					$_SESSION['tab_images'] = $tab_images;
 					$_SESSION['num_image'] = 0;
 				}else{
-					header('Location: index_saisie_zones.php?retour=3'); 		
+					$erreur = "<strong>Nom de répertoire incorrect.</strong>";
 				}
 			}else{
-				header('Location: index_saisie_zones.php?retour=3'); 		
+				$erreur = "<strong>Nom de répertoire incorrect.</strong>";
 			}
 		}else{
-			header('Location: index_saisie_zones.php?retour=2'); 			
+			$erreur = "<strong>Aucun fichier dans ce répertoire.</strong>";
 		}
 	}else{
-		header('Location: index_saisie_zones.php?retour=1'); 			
-	}		
+		$erreur = "<strong>Nom de répertoire incorrect.</strong>";
+	}	
+	return $erreur;	
 }
 
 function next_image(){
@@ -181,7 +187,18 @@ function calcul_statistiques($repertoire_original,$repertoire_blanc){
 				}
 			}
 		}
-		$contenu_table .= '<tr><td>'.$row['nom'].'</td><td>'.str_replace(";","<br>",$row['zones']).'</td><td>'.$result_calcul.'</td><td>'.$lien_compare.'</td></tr>';
+		
+		$nbZonesHocr =  nbZonesHocr($_POST['repertoire_hocr'].'/'.$row['nom'].'_.hocr');
+		if ($nbZonesHocr == null)
+			$resultNbZonesHocr = '<span style="color:#ff1503;"><span style="text-decoration: underline;">/!\</span> Pas de fichier hocr</span>';		
+		elseif ($nbZonesHocr < MIN_ZONE_HOCR)
+			$resultNbZonesHocr = $nbZonesHocr.'<br/><span style="color:#ff1503;"><span style="text-decoration: underline;">/!\</span> Nb de zones faible</span>';
+		elseif ($nbZonesHocr > MAX_ZONE_HOCR)
+			$resultNbZonesHocr = $nbZonesHocr.'<br/><span style="color:#ff1503;"><span style="text-decoration: underline;">/!\</span> Nb de zones important</span>';
+		else
+			$resultNbZonesHocr = $nbZonesHocr;
+		
+		$contenu_table .= '<tr><td>'.$row['nom'].'</td><td>'.str_replace(";","<br>",$row['zones']).'</td><td>'.$resultNbZonesHocr.'</td><td>'.$result_calcul.'</td><td>'.$lien_compare.'</td></tr>';
 	
 	}	
 	$retour = '<p>'.$nb_traitee.' images traitées / '.$nb_image.' images dans la base.</p>';
@@ -198,12 +215,35 @@ function calcul_statistiques($repertoire_original,$repertoire_blanc){
 		$retour .= '<tr><td><span style="color:#09af09;">'.round($pourcent_ok,2).' %</span></td><td><span style="color:#ff1503;">'.round($pourcent_ko,2).' %</span></td></tr>';
 		$retour .= '</table>';
 		$retour .= '<table class="result">';
+		$retour .= '<tr><td>Image</td><td>Zones saisies</td><td>Nb zones détectées</td><td>Comparaison saisie/zones blanchies</td><td>Visualisation</td></tr>';
 		$retour .= $contenu_table;
 		$retour .= '</table>';
 
 	}
 	return $retour;
 	
+}
+
+function nbZonesHocr($file)
+{
+	$nb_zone = null;
+	if (file_exists($file)) {
+		//$xml = simplexml_load_file($file);
+		$doc = new DOMDocument();
+		$doc->loadHTMLFile($file);
+		//$doc->loadXMLFile($file);
+		
+		$finder = new DomXPath($doc);
+		$classname="ocr_line";
+		//$nodes = $finder->query("//*[contains(@class, '$classname')]");
+		$nodes = $finder->query("//span[contains(@class, '$classname')]");
+		
+		$nb_zone = $nodes->length;
+		/*echo "<pre>";
+		print_r($nodes);
+		echo "</pre>";*/
+	}
+	return $nb_zone;
 }
 
 

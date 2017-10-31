@@ -7,7 +7,7 @@ if (isset($_GET['fichier']) && isset($_GET['image'])){
 	$name_image = $_GET['image'];
 	floute_image($name_file,$name_image);
 }else{
-	echo "<p>Aucun paramètres</p>";
+	echo "<p>Aucun paramÃ¨tres</p>";
 }
 
 
@@ -57,10 +57,10 @@ function LoadJpeg($imgname){
     /* Tente d'ouvrir l'image */
     $im = imagecreatefromjpeg($imgname);
 
-    /* Traitement en cas d'échec */
+    /* Traitement en cas d'Ã©chec */
     if(!$im){
 echo "<br>ouverture de l'image : 0";
-        /* Création d'une image vide */
+        /* CrÃ©ation d'une image vide */
         $im  = imagecreatetruecolor(150, 30);
         $bgc = imagecolorallocate($im, 255, 255, 255);
         $tc  = imagecolorallocate($im, 0, 0, 0);
