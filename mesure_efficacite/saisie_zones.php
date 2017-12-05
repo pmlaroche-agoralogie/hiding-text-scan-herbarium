@@ -3,13 +3,18 @@ session_start();
 require "functions.php"; 
 
 include("header.php");
-
+$erreur ='';
 
 	$result_enregistre_zones = '';
 	if (isset($_POST['action'])){			
 		switch ($_POST['action']) {
 			case "upload":
-				$erreur = init_variables($_POST['repertoire']);
+				if (isset($_POST['num_image'])){			
+					$num_image = $_POST['num_image'];
+				}else{
+					$num_image = 0;
+				}
+				$erreur = init_variables($_POST['repertoire'],$num_image);
 				break;
 			case "next_image":
 				next_image();
@@ -36,6 +41,14 @@ include("header.php");
 		<form action="saisie_zones.php" method="POST" name="form_image" id="form_image" >
 		<p>Saisissez le nom du répertoire des images :</p>
 		<input type="hidden" name="action" id="action" value="upload" />
+		<?php 
+		if (isset($_GET['num_image'])){			
+			$num_image = $_GET['num_image'];
+		}else{
+			$num_image = 0;
+		}
+		echo '<input type="hidden" name="num_image" id="num_image" value="'.$num_image.'" />';
+		?>
 		<p><input type="text" name="repertoire" id="repertoire" value="imagesrecues"/></p>
 		<p><input type="submit" name="button" id="button" value="Valider" /></p>
 		</form>
@@ -91,10 +104,10 @@ include("header.php");
 		           	<div class="image-buttons">
 		            	<?php 
 							if (count($tab_images)>0){
-							$index_image = $num_image+1;
+							
 							echo '<table>
 									<tr>
-										<td class="actions">'.$result_enregistre_zones.'<p><strong>Image : '.$index_image.' / '.count($tab_images).'</strong></p>
+										<td class="actions">'.$result_enregistre_zones.'<p><strong>Image : '.$num_image.' / '.count($tab_images).'</strong></p>
 											<p>'.$tab_images[$num_image].'</p>';
 											echo '<p id="infos_zones">'.count($tab_zones).' zone(s) sélectionnée(s) : <br />'.str_replace(";","<br />",$zones).'</p>';
 											echo '<form action="" method="POST" name="form_enregistre" id="form_enregistre" >
@@ -106,7 +119,7 @@ include("header.php");
 											
 									//		<input type="button" id="btnReset" value="Supprimer" class="actionOn" />';
 											
-										if ($num_image >0){	
+										if ($num_image > 0){	
 											echo '<form action="" method="POST" name="form_prev" id="form_prev" >
 												<input type="hidden" name="action" id="action" value="prev_image" />
 												<input type="button" id="btnPrev" value="Image precedente" class="actionOn" onClick="document.forms[\'form_prev\'].submit();" />

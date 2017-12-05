@@ -2,9 +2,9 @@
 include ("connexion-data.php");
 
 define("MIN_ZONE_HOCR",2);
-define("MAX_ZONE_HOCR",20);
+define("MAX_ZONE_HOCR",200);
 
-function init_variables($repertoire){
+function init_variables($repertoire,$num_image){
 
 	$erreur = '';
 	if ($repertoire != ''){	
@@ -34,7 +34,7 @@ function init_variables($repertoire){
 				if (count($tab_images) > 0){
 					$_SESSION['repertoire'] = $repertoire;
 					$_SESSION['tab_images'] = $tab_images;
-					$_SESSION['num_image'] = 0;
+					$_SESSION['num_image'] = $num_image;
 				}else{
 					$erreur = "<strong>Nom de répertoire incorrect.</strong>";
 				}
@@ -140,6 +140,34 @@ function get_nom_image($uid){
 		$nom_image = $row['nom'];
 	}
 	return $nom_image;
+}
+
+function calcul_blanco($repertoire_original,$repertoire_blanc){
+	
+	if (substr($repertoire_original,strlen($repertoire_original)-1,1) != '/'){
+		$repertoire_original = $repertoire_original."/";
+	}
+	$_SESSION['repertoire_original'] = $repertoire_original;
+	if (substr($repertoire_blanc,strlen($repertoire_blanc)-1,1) != '/'){
+		$repertoire_blanc = $repertoire_blanc."/";
+	}
+	$_SESSION['repertoire_blanc'] = $repertoire_blanc;
+				
+	$nb_image = 0;
+	$nb_traitee = 0;
+	$nb_ok = 0;
+	$nb_ko = 0;
+	$contenu_table = '';
+	
+	$connect_db = se_connecter();
+	$requetesql = 'SELECT * FROM images_verif ORDER BY uid';
+	$resultat = mysql_query($requetesql,$connect_db);	
+
+	while($row = mysql_fetch_assoc($resultat)){
+		$nb_image++;
+		echo "lynx -dump 'http://hidingzone.iherbarium.net/traitement_image/process_image.php?fichier=";
+		echo $row['nom'].'_.hocr&image='.$row['nom']."'<br>";
+		}
 }
 
 function calcul_statistiques($repertoire_original,$repertoire_blanc){
