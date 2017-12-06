@@ -7,6 +7,11 @@ import argparse
 import imutils
 import cv2
 
+#numpy pour recuperer list de points
+import numpy as np
+
+
+
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", required=True,
@@ -25,9 +30,9 @@ gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
 blurred = cv2.GaussianBlur(gray, (5, 5), 0)
 thresh = cv2.threshold(blurred, 60, 255, cv2.THRESH_BINARY)[1]
 
-edges = cv2.Canny(gray,30,100)
+#edges = cv2.Canny(gray,30,100)
 thresh = cv2.Canny(gray,30,100)
-cv2.imwrite("tt.jpg",edges)
+cv2.imwrite("canny.jpg",thresh)
 
 # find contours in the thresholded image and initialize the
 # shape detector
@@ -54,12 +59,20 @@ for c in cnts:
 	c *= ratio
 	c = c.astype("int")
 	if shape == "rectangle": 
-		cv2.drawContours(image, [c], -1, (0, 255, 0),1,-1)
-		cv2.putText(image, shape + str(M["m10"]), (cX, cY), cv2.FONT_HERSHEY_SIMPLEX,
-			0.5, (5, 5, 255), 2)
+		listpoint = np.vstack([c]).squeeze()
+		r =  cv2.minAreaRect(listpoint)
+		vertices = cv2.boundingRect(listpoint)
+#		largeur = r[1][0] - r[0][0]
+		if r[1][0]>100:
+			cv2.rectangle(image,(int(r[0][0]),int(r[0][1])), (int(r[1][0]),int(r[1][1])) ,(200,10,10),5)
+			print r	
+			print vertices
+			cv2.drawContours(image, [c], -1, (0, 255, 0),1)
+			cv2.putText(image, shape + str(M["m10"]), (cX, cY), cv2.FONT_HERSHEY_SIMPLEX,
+				0.5, (5, 5, 255), 2)
 
-	# show the output image
-        print shape 
+		# show the output image
+        	print shape 
 
 #	cv2.imshow("Image", image)
 #	cv2.waitKey(0)
