@@ -296,7 +296,7 @@ function compare_zones_blanches($repertoire,$fichier_image,$zones_image){
 			for ($i=0; $i<count($tab_zones); $i++){
 				$zone_cour = $tab_zones[$i];
 				list($var_x,$var_y,$var_width,$var_height) = explode(",",$zone_cour);
-	
+				if($var_width==0) break; //rectangle vide
 				$x_deb = get_integer($var_x * $rapport);
 				$x_fin = get_integer(($var_x * $rapport) + ($var_width * $rapport));
 				$y_deb = get_integer($var_y * $rapport);
