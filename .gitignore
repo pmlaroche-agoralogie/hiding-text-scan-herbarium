@@ -7,3 +7,6 @@
 /mesure_efficacite/hocr/
 /mesure_efficacite/images_blanco/
 /mesure_efficacite/imagesrecues/
+/analyse/config/config.inc.php
+/analyse/images/
+/analyse/logs/
