@@ -61,12 +61,10 @@ for c in cnts:
 	if shape == "rectangle": 
 		listpoint = np.vstack([c]).squeeze()
 		r =  cv2.minAreaRect(listpoint)
-		vertices = cv2.boundingRect(listpoint)
 #		largeur = r[1][0] - r[0][0]
 		if r[1][0]>100:
 			cv2.rectangle(image,(int(r[0][0]),int(r[0][1])), (int(r[1][0]),int(r[1][1])) ,(200,10,10),5)
 			print r	
-			print vertices
 			cv2.drawContours(image, [c], -1, (0, 255, 0),1)
 			cv2.putText(image, shape + str(M["m10"]), (cX, cY), cv2.FONT_HERSHEY_SIMPLEX,
 				0.5, (5, 5, 255), 2)
