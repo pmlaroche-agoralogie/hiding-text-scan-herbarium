@@ -7,6 +7,8 @@ if (!defined('_CORE_DIR_')) {
 }
 define('_CLASS_DIR_', _CORE_DIR_.'/classes/');
 define('_LOG_DIR_', _CORE_DIR_.'/logs/');
+define('_IMAGES_DIR_', _CORE_DIR_.'');
+define('_IMAGES_ORIGIN_DIR_', _CORE_DIR_.'');
 
 //DATABASE
 define('DB_USER','');
