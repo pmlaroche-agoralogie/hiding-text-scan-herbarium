@@ -11,6 +11,8 @@ Dispatcher::getInstance()->dispatch();
 <html>
 <head>
   <base href="<?php echo BASE_URL?>" target="_blank">
+  <script src="lib/js/jquery/jquery-3.3.1.min.js"></script>
+  
 </head>
 <body>
 <header>

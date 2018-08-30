@@ -1,0 +1,20 @@
+<script>
+	$( "#method" ).change(function() {
+	    $("#process").val("0");
+	    $( "#process :not(option[parent=all])" ).hide();
+	    $( "#process option[parent=" + $(this).val() + "]" ).show();
+	    //alert( "Handler for .change() called." );
+	});
+</script>
+                     
+<div id="addProcess" class="button">Ajouter</div>
+
+<script>
+	$("#addProcess").click(function(){
+		var url = "results/set/" 
+					+ $( "#method" ).val() + "-" + $( "#method option:selected" ).attr("urlfriendlyname") 
+					+ "/" + $("#process").val() + "-" + $( "#process option:selected" ).attr("urlfriendlyname") + "/" ;
+		window.location.href = url;
+	})
+</script>
+            

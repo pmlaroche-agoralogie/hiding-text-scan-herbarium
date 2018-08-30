@@ -28,6 +28,15 @@ class Dispatcher
             'keywords' => array(),
         )
         ,
+        'setResults_rule' => array (
+            'rule' => 'results/set/{method:/}{process:/}',
+            'action' => 'setResults',
+            'keywords' => array(
+                'method' =>            array('regexp' => '[_a-zA-Z0-9_-]+', 'param' => 'method'),
+                'process' =>            array('regexp' => '[_a-zA-Z0-9_-]+', 'param' => 'process')
+            ),
+        )
+        ,
         'getResults_rule' => array (
             'rule' => 'results/get/',
             'action' => 'getResults',
