@@ -101,5 +101,73 @@ class Results {
     protected function addResults_TensorFlow_model2($id_method,$id_process,$path_results)
     {
         echo $path_results;
+        $files = scandir($path_results);
+        
+        $nb_img = 0;
+        $nb_lines = 0;
+        foreach ($files as $file)
+        {
+            $pattern = '/^(.+)\-list\.txt$/';
+            
+            if (preg_match($pattern,$file,$match))
+            {
+                $secureImage = Db::getInstance()->quote($match[1]);
+                $secureIDProcess = (int)$id_process;
+                $sql = "SELECT * FROM " . DB_PREFIXE . "images AS i
+                    LEFT JOIN " . DB_PREFIXE . "results AS r ON r.id_images = i.id_images
+                    WHERE i.filename = ".$secureImage." AND r.id_process=".$secureIDProcess;
+                Db::getInstance()->query($sql);
+                if (Db::getInstance()->numRows() == 0)
+                {
+                    $contentFile = file_get_contents($path_results.$file);
+                    
+                    $aResults = Tools::fromTFArrayToPhpArray($contentFile);
+                    //print_r($aResults);
+                    
+                    try 
+                    {
+                        //Begin transaction
+                        Db::getInstance()->beginTransaction();
+                        $sql_image = "SELECT id_images FROM " . DB_PREFIXE . "images WHERE filename = ".$secureImage;
+                        $sql = "INSERT INTO " . DB_PREFIXE . "results (id_process,id_images) VALUES (".$id_process.",(".$sql_image."))";
+                        //echo $sql."\n";
+                        Db::getInstance()->query($sql);
+                        $id_results = Db::getInstance()->lastInsertId();
+                        //$id_results = 1;
+                        
+                        $nb_img++;
+                        
+                        foreach ($aResults as $result)
+                        {
+                            $sql = "INSERT INTO " . DB_PREFIXE . "results_details (id_results,y_top_left,x_top_left,y_bottom_right,x_bottom_right,constante,percentage)
+                                        VALUES (".$id_results.", ".(float)$result[0].",".(float)$result[1].",".(float)$result[2].",
+                                                ".(float)$result[3].",".(float)$result[4].",".(float)$result[5].")";
+                            Db::getInstance()->query($sql);
+                            
+                            $nb_lines++;
+
+                        }
+                        
+                        //fin transaction
+                        Db::getInstance()->commitTransaction();
+                    }
+                    catch (PDOException $e)
+                    {
+                        Db::getInstance()->rollbackTransaction();
+                        Tools::stopError('404','Not found','PDO Transaction:'.$e->getMessage()."\t".$sql);
+                    }
+                    
+
+                }
+               
+
+
+            }
+            
+        }
+        echo 'nb images : '.$nb_img."<br>\n";
+        echo 'nb lines : '.$nb_lines."<br>\n";
+        
+        
     }
 }
