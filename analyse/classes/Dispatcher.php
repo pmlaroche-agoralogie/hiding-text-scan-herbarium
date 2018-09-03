@@ -28,9 +28,24 @@ class Dispatcher
             'keywords' => array(),
         )
         ,
-        'setResults_rule' => array (
+        'AddResults_rule' => array (
             'rule' => 'results/set/{method:/}{process:/}',
             'action' => 'setResults',
+            'keywords' => array(
+                'method' =>            array('regexp' => '[_a-zA-Z0-9_-]+', 'param' => 'method'),
+                'process' =>            array('regexp' => '[_a-zA-Z0-9_-]+', 'param' => 'process')
+            ),
+        )
+        ,
+        'setWhiteResults_rule' => array (
+            'rule' => 'results/white/set/',
+            'action' => 'setWhiteResults',
+            'keywords' => array(),
+        )
+        ,
+        'addWhiteResults_rule' => array (
+            'rule' => 'results/white/set/{method:/}{process:/}',
+            'action' => 'setWhiteResults',
             'keywords' => array(
                 'method' =>            array('regexp' => '[_a-zA-Z0-9_-]+', 'param' => 'method'),
                 'process' =>            array('regexp' => '[_a-zA-Z0-9_-]+', 'param' => 'process')
@@ -208,6 +223,7 @@ class Dispatcher
                     (new Images)->doAction();
                     break;
                 case "setResults":
+                case "setWhiteResults":
                     (new Results)->doAction();
                     break;
                 case 'wantCoffee':

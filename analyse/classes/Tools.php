@@ -139,4 +139,27 @@ class Tools
             return $myArr;
             
     }
+    
+    public static function LoadJpeg($imgname){
+        /* Tente d'ouvrir l'image */
+        $im = imagecreatefromjpeg($imgname);
+        
+        /* Traitement en cas d'échec */
+        if(!$im){
+            echo "<br>ouverture de l'image : 0";
+            /* Création d'une image vide */
+            $im  = imagecreatetruecolor(150, 30);
+            $bgc = imagecolorallocate($im, 255, 255, 255);
+            $tc  = imagecolorallocate($im, 0, 0, 0);
+            
+            imagefilledrectangle($im, 0, 0, 150, 30, $bgc);
+            
+            /* On y affiche un message d'erreur */
+            imagestring($im, 1, 5, 5, 'Erreur de chargement ' . $imgname, $tc);
+        }else{
+            echo "<br>ouverture de l'image : 1";
+        }
+        
+        return $im;
+    }
 }

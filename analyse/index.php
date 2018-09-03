@@ -10,7 +10,7 @@ Dispatcher::getInstance()->dispatch();
 ?>
 <html>
 <head>
-  <base href="<?php echo BASE_URL?>" target="_blank">
+  <base href="<?php echo BASE_URL?>">
   <script src="lib/js/jquery/jquery-3.3.1.min.js"></script>
   
 </head>
@@ -18,6 +18,7 @@ Dispatcher::getInstance()->dispatch();
 <header>
 <ul><li><a href="images/set/">Ajouter des images</a></li>
 	<li><a href="results/set/">Ajouter des résultats</a></li>
+	<li><a href="results/white/set/">Blanchir des images</a></li>
 </ul>
 <?php echo $content;?>
 </header>
