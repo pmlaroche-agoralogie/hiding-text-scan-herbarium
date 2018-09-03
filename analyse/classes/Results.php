@@ -186,7 +186,8 @@ class Results {
                 
                 if (preg_match($pattern,$file,$match))
                 {
-                    $secureImage = Db::getInstance()->quote($match[1]);
+                    $image = $match[1];
+                    $secureImage = Db::getInstance()->quote($image);
                     $secureIDProcess = (int)$id_process;
                     $sql = "SELECT * FROM " . DB_PREFIXE . "images AS i
                         LEFT JOIN " . DB_PREFIXE . "results AS r ON r.id_images = i.id_images
@@ -217,10 +218,46 @@ class Results {
                                 }*/
                             }
                         }
-                        print_r($aResults);
-                        //manque largeur image pour conversion %
-                        
-                        //TODO: convertir % et enregistrer, constant et percentage dans table = 1
+
+                        try
+                        {
+                            //Begin transaction
+                            Db::getInstance()->beginTransaction();
+                            $sql_image = "SELECT id_images FROM " . DB_PREFIXE . "images WHERE filename = ".$secureImage;
+                            $sql = "INSERT INTO " . DB_PREFIXE . "results (id_process,id_images) VALUES (".$id_process.",(".$sql_image."))";
+                            //echo $sql."\n";
+                            Db::getInstance()->query($sql);
+                            $id_results = Db::getInstance()->lastInsertId();
+                            //$id_results = 1;
+                            
+                            $nb_img++;
+                            
+                            //get info images
+                            $infoImg = getimagesize(_IMAGES_BIG_ORIGIN_DIR_.$image);
+                            
+                            foreach ($aResults as $result)
+                            {
+                                $xhg = $result[0] * 100 / $infoImg[0];
+                                $yhg = $result[1] * 100 / $infoImg[1];
+                                $xbd = $result[2] * 100 / $infoImg[0];
+                                $ybd = $result[3] * 100 / $infoImg[1];
+                                
+                                $sql = "INSERT INTO " . DB_PREFIXE . "results_details (id_results,y_top_left,x_top_left,y_bottom_right,x_bottom_right,constante,percentage)
+                                            VALUES (".$id_results.", ".$yhg.",".$xhg.",".$ybd.",
+                                                    ".$xbd.",1,1)";
+                                Db::getInstance()->query($sql);
+                                $nb_lines++;
+                                
+                            }
+                            
+                            //fin transaction
+                            Db::getInstance()->commitTransaction();
+                        }
+                        catch (PDOException $e)
+                        {
+                            Db::getInstance()->rollbackTransaction();
+                            Tools::stopError('404','Not found','PDO Transaction:'.$e->getMessage()."\t".$sql);
+                        }
 
                     }
                 }
