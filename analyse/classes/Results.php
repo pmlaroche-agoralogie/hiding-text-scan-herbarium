@@ -275,7 +275,7 @@ class Results {
         
     }
     
-    protected function setWhiteResults($id_method,$id_process)
+    protected function setWhiteResults()
     {
         
         global $content;
@@ -361,10 +361,13 @@ class Results {
         Db::getInstance()->query($sql);
         $aResults = Db::getInstance()->getAll();
         
+        $dirname = "blanc_".($limitPercent*100)."_surf_".($limitSurface*100)."/";
+        if (!is_dir($path_results.$dirname))
+            mkdir($path_results.$dirname);
        
         foreach($aResults as $aResult)
         {
-            $white_file=$path_results.$aResult['filename']."_blanc_".($limitPercent*100);
+            $white_file=$path_results.$dirname.$aResult['filename']."_blanc_".($limitPercent*100)."_surf_".($limitSurface*100);
             if (!file_exists($white_file))
             {
                 //get info images
@@ -409,6 +412,61 @@ class Results {
     
     protected function addWhiteResults_OCR_hOCR($id_method,$id_process,$path_results)
     {
+        $pathImgOrigin = _IMAGES_ORIGIN_DIR_;
         
+       // $limitPercent = 0.1; //10%
+       // $limitSurface = 0.01; //1%
+       $limitWidth = 0.1; //10%
+       $limitHeight = 0.06; //6%
+        
+        $sql = "SELECT r.*,i.filename FROM " . DB_PREFIXE . "results as r
+                    LEFT JOIN " . DB_PREFIXE . "images as i ON r.id_images = i.id_images
+                    WHERE r.id_process = ".$id_process;
+        Db::getInstance()->query($sql);
+        $aResults = Db::getInstance()->getAll();
+        
+        $dirname = "blanc_w_".($limitWidth*100)."_h_".($limitHeight*100)."/";
+        if (!is_dir($path_results.$dirname))
+            mkdir($path_results.$dirname);
+        
+        foreach($aResults as $aResult)
+        {
+            $white_file=$path_results.$dirname.$aResult['filename']."blanc_w_".($limitWidth*100)."_h_".($limitHeight*100);
+            if (!file_exists($white_file))
+            {
+                //get info images
+                $infoImg = getimagesize(_IMAGES_ORIGIN_DIR_.$aResult['filename']);
+                
+                $im = Tools::LoadJpeg(_IMAGES_ORIGIN_DIR_.$aResult['filename']);
+                $white = imagecolorallocate($im,255,255,255);
+                
+                $sql = "SELECT * FROM " . DB_PREFIXE . "results_details
+                            WHERE id_results = ".$aResult['id_results'];
+                                //AND percentage > ".$limitPercent;
+                Db::getInstance()->query($sql);
+                $aResultsDetails = Db::getInstance()->getAll();
+                foreach ($aResultsDetails as $aResultsDetail)
+                {
+                    
+                    $boxWidth = ($aResultsDetail['x_bottom_right'] - $aResultsDetail['x_top_left']) ;
+                    $boxHeight = ($aResultsDetail['y_bottom_right'] - $aResultsDetail['y_top_left']);
+                    
+                    if (($boxWidth < $limitWidth) && ($boxHeight < $limitHeight))
+                    {
+                        $xgh_pixel = $aResultsDetail['x_top_left'] *  $infoImg[0];
+                        $yhg_pixel = $aResultsDetail['y_top_left'] *  $infoImg[1];
+                        $xbd_pixel = $aResultsDetail['x_bottom_right'] *  $infoImg[0];
+                        $ybd_pixel = $aResultsDetail['y_bottom_right'] *  $infoImg[1];
+                        
+                        imagefilledrectangle ($im ,$xgh_pixel,$yhg_pixel,$xbd_pixel,$ybd_pixel,$white);
+                    }
+                }
+                
+                imagejpeg($im, $white_file);
+                imagedestroy($im);
+                
+            }
+            
+        }
     }
 }
