@@ -19,6 +19,7 @@ Dispatcher::getInstance()->dispatch();
 <ul><li><a href="images/set/">Ajouter des images</a></li>
 	<li><a href="results/set/">Ajouter des résultats</a></li>
 	<li><a href="results/white/set/">Blanchir des images</a></li>
+	<li><a href="analysis/zone/get/">Analyse des zones</a></li>
 </ul>
 <?php echo $content;?>
 </header>

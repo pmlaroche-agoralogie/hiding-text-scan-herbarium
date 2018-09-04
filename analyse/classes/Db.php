@@ -190,7 +190,7 @@ class Db
      * @param PDOStatement $result
      * @return int
      */
-    public function numRows()
+    public function numRows($result = false)
     {
         if (!$result) {
             $result = $this->result;

@@ -52,6 +52,12 @@ class Dispatcher
             ),
         )
         ,
+        'getAnalysisZone_rule' => array (
+            'rule' => 'analysis/zone/get/',
+            'action' => 'getAnalysisZone',
+            'keywords' => array(),
+        )
+        ,
         'getResults_rule' => array (
             'rule' => 'results/get/',
             'action' => 'getResults',
@@ -225,6 +231,9 @@ class Dispatcher
                 case "setResults":
                 case "setWhiteResults":
                     (new Results)->doAction();
+                    break;
+                case "getAnalysisZone":
+                    (new Analysis)->doAction();
                     break;
                 case 'wantCoffee':
                     Tools::stopError('418',"I'm a teapot","I'm a teapot",false);
