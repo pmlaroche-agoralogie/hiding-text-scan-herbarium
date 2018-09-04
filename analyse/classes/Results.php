@@ -182,6 +182,7 @@ class Results {
         
         $nb_img = 0;
         $nb_lines = 0;
+        $test = 0;
         foreach ($files as $file)
         {
             if (($file != '.' && $file != '..') && ($file != '.DS_Store') && ($file[0] != '.'))
@@ -206,6 +207,9 @@ class Results {
                         $classname="ocr_line";
                         
                         $nodes = $finder->query("//span[contains(@class, '$classname')]");
+                        
+                        $aResults =array();
+                        
                         foreach ($nodes as $node)
                         {
                             $attrTitle = $node->getAttribute("title");
@@ -239,16 +243,15 @@ class Results {
                             //get info images
                             $infoImg = getimagesize(_IMAGES_BIG_ORIGIN_DIR_.$image);
                             
-                            foreach ($aResults as $result)
+                            foreach ($aResults as $key => $result)
                             {
-                                $xhg = $result[0] * 100 / $infoImg[0];
-                                $yhg = $result[1] * 100 / $infoImg[1];
-                                $xbd = $result[2] * 100 / $infoImg[0];
-                                $ybd = $result[3] * 100 / $infoImg[1];
+                                $xhg = $result[0] / $infoImg[0];
+                                $yhg = $result[1] / $infoImg[1];
+                                $xbd = $result[2] / $infoImg[0];
+                                $ybd = $result[3] / $infoImg[1];
                                 
                                 $sql = "INSERT INTO " . DB_PREFIXE . "results_details (id_results,y_top_left,x_top_left,y_bottom_right,x_bottom_right,constante,percentage)
-                                            VALUES (".$id_results.", ".$yhg.",".$xhg.",".$ybd.",
-                                                    ".$xbd.",1,1)";
+                                            VALUES (".$id_results.", ".$yhg.",".$xhg.",".$ybd.",".$xbd.",1,1)";
                                 Db::getInstance()->query($sql);
                                 $nb_lines++;
                                 
@@ -402,5 +405,10 @@ class Results {
     protected function addWhiteResults_TensorFlow_model2bis($id_method,$id_process,$path_results)
     {
         $this->addWhiteResults_TensorFlow_model2($id_method, $id_process, $path_results);
+    }
+    
+    protected function addWhiteResults_OCR_hOCR($id_method,$id_process,$path_results)
+    {
+        
     }
 }
