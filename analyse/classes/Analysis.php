@@ -477,7 +477,6 @@ ctx.stroke();}*/';
                         WHERE r.id_results IN (".$subSql.")
                         HAVING nb_zone < ".$minZone." OR nb_zone > ".$maxZone;
         
-        echo $sql;
         Db::getInstance()->query($sql);
         $aResultsPbZone = Db::getInstance()->getAll();
         if (sizeof($aResultsPbZone) > 0)
