@@ -410,7 +410,7 @@ ctx.stroke();}*/';
         {
             $getAnalysisPBZoneResultsFunction = "getAnalysisPBZoneResults_".$aResultProcess["method"]."_".$aResultProcess["version"];
             
-            $this->$getAnalysisPBZoneResultsFunction($aResultProcess['id_process'],$aPbZoneImages);
+            $this->$getAnalysisPBZoneResultsFunction($aResultProcess['id_process'],$aPbZoneImages,$aNbProcess);
             
            
             
@@ -418,13 +418,14 @@ ctx.stroke();}*/';
         }
         
 
-        
+        $resume = '';
         $tableResults = '<div class="table">';
         
         $tableResults.= '<div class="table-row"><div class="table-cell">Image</div>';
         foreach ($aResultsProcess as $aResultProcess)
         {
             $tableResults.= '<div class="table-cell">'.$aResultProcess["method"]."_".$aResultProcess["version"].'</div>';
+            $resume .= $aResultProcess["method"].' '.$aResultProcess["version"].' : '.$aNbProcess[$aResultProcess['id_process']].'<br>';
         }
         $tableResults.= '</div>'; //row
         foreach ($aPbZoneImages as $filename => $pbZoneImages)
@@ -448,11 +449,11 @@ ctx.stroke();}*/';
                                 $tableResults.= '</div>'; //fin row
         }
         $tableResults .= '</div>'; //fin table
-        return $tableResults;
+        return $resume.$tableResults;
        
     }
     
-    protected function getAnalysisPBZoneResults_TensorFlow_model2($id_process,&$aPbZoneImages)
+    protected function getAnalysisPBZoneResults_TensorFlow_model2($id_process,&$aPbZoneImages,&$aNbProcess)
     {
         $minZone = 1;
         $maxZone = 10;
@@ -481,6 +482,7 @@ ctx.stroke();}*/';
         $aResultsPbZone = Db::getInstance()->getAll();
         if (sizeof($aResultsPbZone) > 0)
         {
+            $aNbProcess[$id_process] = sizeof($aResultsPbZone);
             foreach($aResultsPbZone as $aResultPbZone)
             {
                 
@@ -489,13 +491,13 @@ ctx.stroke();}*/';
         }
     }
     
-    protected function getAnalysisPBZoneResults_TensorFlow_model2bis($id_results,&$aPbZoneImages)
+    protected function getAnalysisPBZoneResults_TensorFlow_model2bis($id_process,&$aPbZoneImages,&$aNbProcess)
     {
-         $this->getAnalysisPBZoneResults_TensorFlow_model2($id_results,$aPbZoneImages);
+        $this->getAnalysisPBZoneResults_TensorFlow_model2($id_process,$aPbZoneImages,$aNbProcess);
     }
     
-    protected function getAnalysisPBZoneResults_OCR_hOCR($id_results,&$aPbZoneImages)
+    protected function getAnalysisPBZoneResults_OCR_hOCR($id_process,&$aPbZoneImages,&$aNbProcess)
     {
-
+        $aNbProcess[$id_process] = 0;
     }
 }
