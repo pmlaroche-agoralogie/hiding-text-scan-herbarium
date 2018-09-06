@@ -1,0 +1,27 @@
+TensorFlow<br>
+<label>Min Percentage [0-100]</label>
+<input id="percent" type="number" min="0" max="100" value="##percent##"/><br>
+<label>Max Area (%) [0-100]</label>
+<input id="surface" type="number" min="0" max="100" value ="##surf##"/><br>
+OCR<br>
+<label>Max Width (%) [0-100]</label>
+<input id="width" type="number" min="0" max="100" value ="##width##"/><br>
+<label>Max Height (%) [0-100]</label>
+<input id="height" type="number" min="0" max="100" value ="##height##"/><br>
+
+<div id="getAnalysisZone" class="button">Analyser</div>
+
+<script>
+	$("#getAnalysisZone").click(function(){
+		var url = "analysis/zone/pb/get/?percent="+$( "#percent" ).val()+"&surface="+$( "#surface" ).val()+"&width="
+							+$( "#width" ).val()+"&height="+$( "#height" ).val();
+		window.location.href = url;
+	})
+</script>
+
+<style>
+.table {display:table}
+.table-row {display:table-row}
+.table-cell {display:table-cell;text-align:center;padding : 5px;border: 1px solid grey;vertical-align:middle}
+</style>
+            

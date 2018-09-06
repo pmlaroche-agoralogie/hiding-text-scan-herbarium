@@ -19,6 +19,9 @@ class Analysis {
             case 'getAnalysisZoneDisplay':
                 $this->getAnalysisZoneDisplay();
                 break;
+            case 'getAnalysisPBZone':
+                $this->getAnalysisPBZone();
+                break;
                 
         }
         
@@ -376,5 +379,124 @@ ctx.stroke();}*/';
         }
         return $script;
         
+    }
+    
+    protected function getAnalysisPBZone()
+    {
+        global $content;
+        
+        $file = file_get_contents(_TEMPLATES_DIR_.'Analysis/getAnalysisPBZone.html');
+        
+        // $content .= file_get_contents(_TEMPLATES_DIR_.'Analysis/getAnalysisZone.html');
+        
+        if (isset($_GET['percent']))
+        {
+            $content .= str_replace('##percent##',$_GET['percent'],str_replace('##surf##',$_GET['surface'],
+                str_replace('##width##',$_GET['width'],str_replace('##height##',$_GET['height'],$file))));
+            $content .=  $this->getAnalysisPBZoneResults();
+        }
+        else
+            $content .= str_replace('##percent##','10',str_replace('##surf##','20',str_replace('##width##','10',str_replace('##height##','6',$file))));
+    }
+    
+    protected function getAnalysisPBZoneResults()
+    {
+        
+        $aPbZoneImages= array();
+        $sql = "SELECT m.*,p.* FROM " . DB_PREFIXE . "method AS m LEFT JOIN " . DB_PREFIXE . "process AS p ON m.id_method = p.id_method";
+        Db::getInstance()->query($sql);
+        $aResultsProcess = Db::getInstance()->getAll();
+        foreach ($aResultsProcess as $aResultProcess)
+        {
+            $getAnalysisPBZoneResultsFunction = "getAnalysisPBZoneResults_".$aResultProcess["method"]."_".$aResultProcess["version"];
+            
+            $this->$getAnalysisPBZoneResultsFunction($aResultProcess['id_process'],$aPbZoneImages);
+            
+           
+            
+            
+        }
+        
+
+        
+        $tableResults = '<div class="table">';
+        
+        $tableResults.= '<div class="table-row"><div class="table-cell">Image</div>';
+        foreach ($aResultsProcess as $aResultProcess)
+        {
+            $tableResults.= '<div class="table-cell">'.$aResultProcess["method"]."_".$aResultProcess["version"].'</div>';
+        }
+        $tableResults.= '</div>'; //row
+        foreach ($aPbZoneImages as $filename => $pbZoneImages)
+        {
+            $tableResults.= '<div class="table-row"><div class="table-cell">
+                                <a href="analysis/zone/display/get/?percent='.$_GET['percent'].'&surface='.$_GET['surface'].'&width='.
+                                $_GET['width'].'&height='.$_GET['height'].'&filename='.$filename.'&big=0"
+                                target="_blank">'.$filename.'</a></div>';
+                                foreach ($aResultsProcess as $aResultProcess)
+                                {
+                                    if (isset($pbZoneImages[$aResultProcess['id_process']]))
+                                    {
+                                        $tableResults.= '<div class="table-cell">';
+                                        $tableResults.= $pbZoneImages[$aResultProcess['id_process']];
+                                        $tableResults.= '</div>';
+                                    }
+                                    else
+                                        $tableResults.= '<div class="table-cell">-</div>';
+                                   
+                                }
+                                $tableResults.= '</div>'; //fin row
+        }
+        $tableResults .= '</div>'; //fin table
+        return $tableResults;
+       
+    }
+    
+    protected function getAnalysisPBZoneResults_TensorFlow_model2($id_process,&$aPbZoneImages)
+    {
+        $minZone = 1;
+        $maxZone = 10;
+        
+        
+        $subSql = "SELECT rd.id_results
+                        FROM " . DB_PREFIXE . "results_details AS rd
+                        LEFT JOIN " . DB_PREFIXE . "results AS r ON r.id_results = rd.id_results
+                        WHERE r.id_process = ".$id_process;
+        
+        $subSql2 = "SELECT rd.id_results, count(*) as nb_zone 
+                        FROM results_details AS rd
+                        WHERE rd.percentage >".($_GET['percent']/100)."
+                            AND ((rd.x_bottom_right-rd.x_top_left)*(rd.y_bottom_right-rd.y_top_left)) <".($_GET['surface']/100)."
+                            AND rd.id_results IN (".$subSql.") 
+                        GROUP BY rd.id_results";
+        
+        $sql = "SELECT i.filename, IFNULL(rd.nb_zone,0) as nb_zone
+                        FROM " . DB_PREFIXE . "images AS i
+                        LEFT JOIN " . DB_PREFIXE . "results AS r ON i.id_images = r.id_images
+                        LEFT OUTER JOIN (".$subSql2.") AS rd ON r.id_results = rd.id_results
+                        WHERE r.id_results IN (".$subSql.")
+                        HAVING nb_zone < ".$minZone." OR nb_zone > ".$maxZone;
+        
+        echo $sql;
+        Db::getInstance()->query($sql);
+        $aResultsPbZone = Db::getInstance()->getAll();
+        if (sizeof($aResultsPbZone) > 0)
+        {
+            foreach($aResultsPbZone as $aResultPbZone)
+            {
+                
+                $aPbZoneImages[$aResultPbZone['filename']][$id_process] = $aResultPbZone['nb_zone'];
+            }
+        }
+    }
+    
+    protected function getAnalysisPBZoneResults_TensorFlow_model2bis($id_results,&$aPbZoneImages)
+    {
+         $this->getAnalysisPBZoneResults_TensorFlow_model2($id_results,$aPbZoneImages);
+    }
+    
+    protected function getAnalysisPBZoneResults_OCR_hOCR($id_results,&$aPbZoneImages)
+    {
+
     }
 }
