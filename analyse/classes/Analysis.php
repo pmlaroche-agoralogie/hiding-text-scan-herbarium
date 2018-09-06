@@ -143,8 +143,9 @@ class Analysis {
         global $content;
         $contentZone = '';
         $selecteur = '';
+        $navImages = '';
         
-        $color = array('blue','green','red','yellow');
+        $color = array('blue','green','red','orange','pink');
         
         if (isset($_GET['filename']))
         {
@@ -176,6 +177,8 @@ class Analysis {
             $selecteur .= '<a href="analysis/zone/display/get/?percent='.$_GET['percent'].'&surface='.$_GET['surface'].'&width='.
                 $_GET['width'].'&height='.$_GET['height'].'&filename='.$_GET['filename'].'&big=0" 
                                 style="color:black">All processes</a><br>';
+            
+            
         
             $contentZone .= '<div style="position:relative">';
             $contentZone .= '<img src="'.$pathRelImgOrigin.$filename.'"/>';
@@ -216,15 +219,41 @@ ctx.stroke();}*/';
                         WHERE i.filename = ".$secureFilename;
             Db::getInstance()->query($sql);
             $aResultsProcess = Db::getInstance()->getAll();
-            print_r($aResultsProcess);
-            
-            
+        
+            $sql = "SELECT filename FROM " . DB_PREFIXE . "images WHERE id_images < ".$aResultsProcess[0]['id_images']." ORDER BY id_images DESC LIMIT 0,1";
+            Db::getInstance()->query($sql);
+            $aResultsPrevious = Db::getInstance()->getAll();
+            if (sizeof($aResultsPrevious)>0)
+            {
+                $navImages .= '<a href="analysis/zone/display/get/?percent='.$_GET['percent'].'&surface='.$_GET['surface'].'&width='.
+                                $_GET['width'].'&height='.$_GET['height'].'&filename='.$aResultsPrevious[0]['filename'].'&big=0"
+                                style="color:black">Prev.</a> ';
+            }
+            $sql = "SELECT filename FROM " . DB_PREFIXE . "images WHERE id_images > ".$aResultsProcess[0]['id_images']." ORDER BY id_images ASC LIMIT 0,1";
+            Db::getInstance()->query($sql);
+            $aResultsNext = Db::getInstance()->getAll();
+            if (sizeof($aResultsNext)>0)
+            {
+                $navImages .= '<a href="analysis/zone/display/get/?percent='.$_GET['percent'].'&surface='.$_GET['surface'].'&width='.
+                    $_GET['width'].'&height='.$_GET['height'].'&filename='.$aResultsNext[0]['filename'].'&big=0"
+                                style="color:black">Next.</a> ';
+            }
             
             foreach($aResultsProcess as $key => $aResultProcess)
             {
                 $selecteur .= '<a href="analysis/zone/display/get/?percent='.$_GET['percent'].'&surface='.$_GET['surface'].'&width='.
                     $_GET['width'].'&height='.$_GET['height'].'&filename='.$_GET['filename'].'&big=0&process='.$aResultProcess['id_process'].'"
-                                style="color:'.$color[$key].'">'.$aResultProcess["method"].' '.$aResultProcess["version"].'</a><br>';
+                                style="color:'.$color[$key].'">'.$aResultProcess["method"].' '.$aResultProcess["version"].'</a>
+                    <a href="analysis/zone/display/get/?percent='.$_GET['percent'].'&surface='.$_GET['surface'].'&width='.
+                    $_GET['width'].'&height='.$_GET['height'].'&filename='.$_GET['filename'].'&big=0&process='.$aResultProcess['id_process'].'&white=1"
+                                style="color:'.$color[$key].'">(blanc)</a>
+                    <a href="analysis/zone/display/get/?percent='.$_GET['percent'].'&surface='.$_GET['surface'].'&width='.
+                    $_GET['width'].'&height='.$_GET['height'].'&filename='.$_GET['filename'].'&big=0&process='.$aResultProcess['id_process'].'&big=1"
+                                style="color:'.$color[$key].'">(big)</a>
+                    <a href="analysis/zone/display/get/?percent='.$_GET['percent'].'&surface='.$_GET['surface'].'&width='.
+                    $_GET['width'].'&height='.$_GET['height'].'&filename='.$_GET['filename'].'&big=0&process='.$aResultProcess['id_process'].'&white=1&big=1"
+                                style="color:'.$color[$key].'">(blanc big)</a>
+                    <br>';
                 if (!isset($_GET['process']) || $_GET['process']==$aResultProcess['id_process'])
                 {
                     $getAnalysisZoneDisplayFunction = "getAnalysisZoneDisplay_".$aResultProcess["method"]."_".$aResultProcess["version"];
@@ -243,7 +272,7 @@ ctx.stroke();}*/';
             $contentZone .= 'Image non trouvée.';
         }
         
-        $content = $selecteur.$contentZone;
+        $content = $navImages.'<br><br>'.$selecteur.$contentZone;
 
         
     }
