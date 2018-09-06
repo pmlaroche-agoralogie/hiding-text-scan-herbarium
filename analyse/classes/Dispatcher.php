@@ -58,6 +58,12 @@ class Dispatcher
             'keywords' => array(),
         )
         ,
+        'getAnalysisZoneDisplay_rule' => array (
+            'rule' => 'analysis/zone/display/get/',
+            'action' => 'getAnalysisZoneDisplay',
+            'keywords' => array(),
+        )
+        ,
         'getResults_rule' => array (
             'rule' => 'results/get/',
             'action' => 'getResults',
@@ -233,6 +239,7 @@ class Dispatcher
                     (new Results)->doAction();
                     break;
                 case "getAnalysisZone":
+                case "getAnalysisZoneDisplay";
                     (new Analysis)->doAction();
                     break;
                 case 'wantCoffee':

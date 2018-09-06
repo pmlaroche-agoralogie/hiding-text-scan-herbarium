@@ -72,7 +72,10 @@ class Analysis {
         $tableResults.= '</div>'; //row
         foreach ($aResultImages as $aResultImage)
         {
-            $tableResults.= '<div class="table-row"><div class="table-cell">'.$aResultImage['filename'].'</div>';
+            $tableResults.= '<div class="table-row"><div class="table-cell">
+                                <a href="analysis/zone/display/get/?percent='.$_GET['percent'].'&surface='.$_GET['surface'].'&width='.
+                                $_GET['width'].'&height='.$_GET['height'].'&filename='.$aResultImage['filename'].'&big=0" 
+                                target="_blank">'.$aResultImage['filename'].'</a></div>';
             foreach ($aResultsProcess as $aResultProcess)
             {
                 $sql = "SELECT * FROM " . DB_PREFIXE . "results WHERE id_images = ".$aResultImage['id_images']." AND id_process = ".$aResultProcess['id_process'];
@@ -133,5 +136,216 @@ class Analysis {
         " AND (x_bottom_right-x_top_left) <".($_GET['width']/100)." AND (y_bottom_right-y_top_left) <".($_GET['height']/100);
         Db::getInstance()->query($sql);
         return  Db::getInstance()->numRows();
+    }
+    
+    protected function getAnalysisZoneDisplay()
+    {
+        global $content;
+        $contentZone = '';
+        $selecteur = '';
+        
+        $color = array('blue','green','red','yellow');
+        
+        if (isset($_GET['filename']))
+        {
+            $filename = $_GET['filename'];
+            $secureFilename = Db::getInstance()->quote($filename);
+        }
+        else 
+        {
+            //todo selectionner premiere image
+        }
+        
+        if (isset($_GET['big']) && (int)$_GET['big'])
+        {
+            $pathImgOrigin = _IMAGES_BIG_ORIGIN_DIR_;
+            $pathRelImgOrigin = _REL_IMAGES_BIG_ORIGIN_DIR_;
+        }
+        else
+        {
+            $pathImgOrigin = _IMAGES_ORIGIN_DIR_;
+            $pathRelImgOrigin = _REL_IMAGES_ORIGIN_DIR_;
+        }
+        
+        $pathImage = $pathImgOrigin.$filename;
+        
+        if (file_exists($pathImage))
+        {
+            $infoImg = getimagesize($pathImage);
+            
+            $selecteur .= '<a href="analysis/zone/display/get/?percent='.$_GET['percent'].'&surface='.$_GET['surface'].'&width='.
+                $_GET['width'].'&height='.$_GET['height'].'&filename='.$_GET['filename'].'&big=0" 
+                                style="color:black">All processes</a><br>';
+        
+            $contentZone .= '<div style="position:relative">';
+            $contentZone .= '<img src="'.$pathRelImgOrigin.$filename.'"/>';
+            $contentZone .= '<canvas id="myCanvas" width="'.$infoImg[0].'" height="'.$infoImg[1].'" style="position:absolute;top:0;left:0">
+            Your browser does not support the HTML5 canvas tag.</canvas>';
+            $contentZone .= '</div>';
+            
+            $contentZone .= '<script>
+window.onload = function() {
+var c=document.getElementById("myCanvas");
+var ctx=c.getContext("2d");
+/*
+// Red rectangle
+ctx.beginPath();
+ctx.lineWidth="6";
+ctx.strokeStyle="red";
+ctx.rect(5,5,290,140); 
+ctx.stroke();
+
+// Green rectangle
+ctx.beginPath();
+ctx.lineWidth="4";
+ctx.strokeStyle="green";
+ctx.rect(30,30,50,50);
+ctx.stroke();
+
+// Blue rectangle
+ctx.beginPath();
+ctx.lineWidth="10";
+ctx.strokeStyle="blue";
+ctx.rect(50,50,150,80);
+ctx.stroke();}*/';
+            
+            $sql = "SELECT * FROM " . DB_PREFIXE . "results AS r
+                        LEFT JOIN " . DB_PREFIXE . "images AS i ON i.id_images = r.id_images
+                        LEFT JOIN " . DB_PREFIXE . "process AS p ON r.id_process = p.id_process
+                        LEFT JOIN   " . DB_PREFIXE . "method AS m ON m.id_method = p.id_method
+                        WHERE i.filename = ".$secureFilename;
+            Db::getInstance()->query($sql);
+            $aResultsProcess = Db::getInstance()->getAll();
+            print_r($aResultsProcess);
+            
+            
+            
+            foreach($aResultsProcess as $key => $aResultProcess)
+            {
+                $selecteur .= '<a href="analysis/zone/display/get/?percent='.$_GET['percent'].'&surface='.$_GET['surface'].'&width='.
+                    $_GET['width'].'&height='.$_GET['height'].'&filename='.$_GET['filename'].'&big=0&process='.$aResultProcess['id_process'].'"
+                                style="color:'.$color[$key].'">'.$aResultProcess["method"].' '.$aResultProcess["version"].'</a><br>';
+                if (!isset($_GET['process']) || $_GET['process']==$aResultProcess['id_process'])
+                {
+                    $getAnalysisZoneDisplayFunction = "getAnalysisZoneDisplay_".$aResultProcess["method"]."_".$aResultProcess["version"];
+                    
+                    $contentZone .=  $this->$getAnalysisZoneDisplayFunction($aResultProcess['id_results'],$color[$key],$infoImg);
+                }
+                
+               
+            }
+            $contentZone .= '
+}</script>
+            ';
+        }
+        else 
+        {
+            $contentZone .= 'Image non trouvée.';
+        }
+        
+        $content = $selecteur.$contentZone;
+
+        
+    }
+    
+    protected function getAnalysisZoneDisplay_TensorFlow_model2($id_results,$color,$infoImg)
+    {
+        $limitPercent = $_GET['percent']/100;
+        $limitSurface = $_GET['surface']/100;
+        $i=1;
+        $script = '';
+        
+        $sql = "SELECT * FROM " . DB_PREFIXE . "results_details
+                            WHERE id_results = ".$id_results."
+                                AND percentage > ".$limitPercent;
+        Db::getInstance()->query($sql);
+        $aResultsDetails = Db::getInstance()->getAll();
+        foreach ($aResultsDetails as $aResultsDetail)
+        {
+            $boxWidth = ($aResultsDetail['x_bottom_right'] - $aResultsDetail['x_top_left']) ;
+            $boxHeight = ($aResultsDetail['y_bottom_right'] - $aResultsDetail['y_top_left']);
+            
+            $surface = ($aResultsDetail['x_bottom_right'] - $aResultsDetail['x_top_left']) * ($aResultsDetail['y_bottom_right'] - $aResultsDetail['y_top_left']);
+            if ($surface < $limitSurface)
+            {
+                $xgh_pixel = $aResultsDetail['x_top_left'] *  $infoImg[0];
+                $yhg_pixel = $aResultsDetail['y_top_left'] *  $infoImg[1];
+                $width_pixel = $boxWidth *  $infoImg[0];
+                $height_pixel = $boxHeight *  $infoImg[1];
+                
+                if (isset($_GET['white']) && (int)$_GET['white'])
+                {
+                    $script .= 'ctx.fillStyle="white";
+                                ctx.fillRect('.$xgh_pixel.','.$yhg_pixel.','.$width_pixel.','.$height_pixel.');';
+                }
+                else
+                {
+                    $script .= 'ctx.lineWidth="2";
+                                ctx.strokeStyle="'.$color.'";
+                                ctx.strokeRect('.$xgh_pixel.','.$yhg_pixel.','.$width_pixel.','.$height_pixel.');
+                                ctx.textBaseline = "top";
+                                ctx.fillStyle = "'.$color.'";
+                                ctx.font = "20pt sans-serif";
+                                ctx.fillText("'.$i.'", '.($xgh_pixel+5).', '.($yhg_pixel).');';
+                }
+                $i++;
+                
+                
+            }
+        }
+        return $script;
+    }
+    
+    protected function getAnalysisZoneDisplay_TensorFlow_model2bis($id_results,$color,$infoImg)
+    {
+        return $this->getAnalysisZoneDisplay_TensorFlow_model2($id_results,$color,$infoImg);
+    }
+    
+    protected function getAnalysisZoneDisplay_OCR_hOCR($id_results,$color,$infoImg)
+    {
+        $limitWidth = $_GET['width']/100;
+        $limitHeight = $_GET['height']/100;
+        $i=1;
+        
+        $script = '';
+        $sql = "SELECT * FROM " . DB_PREFIXE . "results_details
+                            WHERE id_results = ".$id_results;
+        //AND percentage > ".$limitPercent;
+        Db::getInstance()->query($sql);
+        $aResultsDetails = Db::getInstance()->getAll();
+        foreach ($aResultsDetails as $aResultsDetail)
+        {
+            
+            $boxWidth = ($aResultsDetail['x_bottom_right'] - $aResultsDetail['x_top_left']) ;
+            $boxHeight = ($aResultsDetail['y_bottom_right'] - $aResultsDetail['y_top_left']);
+            
+            if (($boxWidth < $limitWidth) && ($boxHeight < $limitHeight))
+            {
+                $xgh_pixel = $aResultsDetail['x_top_left'] *  $infoImg[0];
+                $yhg_pixel = $aResultsDetail['y_top_left'] *  $infoImg[1];
+                $width_pixel = $boxWidth *  $infoImg[0];
+                $height_pixel = $boxHeight *  $infoImg[1];
+               
+                
+                if (isset($_GET['white']) && (int)$_GET['white'])
+                {
+                    $script .= 'ctx.fillStyle="white";
+                                ctx.fillRect('.$xgh_pixel.','.$yhg_pixel.','.$width_pixel.','.$height_pixel.');';
+                }
+                else
+                {
+                    $script .= 'ctx.lineWidth="2";
+                                ctx.strokeStyle="'.$color.'";
+                                ctx.strokeRect('.$xgh_pixel.','.$yhg_pixel.','.$width_pixel.','.$height_pixel.');
+                                ctx.textBaseline = "top";
+                                ctx.fillStyle = "'.$color.'";
+                                ctx.font = "20pt sans-serif";
+                                ctx.fillText("'.$i.'", '.($xgh_pixel+5).', '.($yhg_pixel).');';
+                }
+                $i++;
+            }
+        }
+        return $script;
+        
     }
 }
