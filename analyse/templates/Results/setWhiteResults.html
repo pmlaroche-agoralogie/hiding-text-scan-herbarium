@@ -1,3 +1,9 @@
+<select id="big">
+	<option value="0" disabled selected>Big?</option>
+	<option value="0">no</option>
+	<option value="1">yes</option>
+</select>
+
 <script>
 	$( "#method" ).change(function() {
 	    $("#process").val("0");
@@ -13,7 +19,8 @@
 	$("#addWhite").click(function(){
 		var url = "results/white/set/" 
 					+ $( "#method" ).val() + "-" + $( "#method option:selected" ).attr("urlfriendlyname") 
-					+ "/" + $("#process").val() + "-" + $( "#process option:selected" ).attr("urlfriendlyname") + "/" ;
+					+ "/" + $("#process").val() + "-" + $( "#process option:selected" ).attr("urlfriendlyname") + "/" 
+					+ "?big=" + $("#big").val() ;
 		window.location.href = url;
 	})
 </script>

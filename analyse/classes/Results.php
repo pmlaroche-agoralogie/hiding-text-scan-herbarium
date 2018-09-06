@@ -350,10 +350,20 @@ class Results {
     
     protected function addWhiteResults_TensorFlow_model2($id_method,$id_process,$path_results)
     {
-        $pathImgOrigin = _IMAGES_ORIGIN_DIR_;
         
         $limitPercent = 0.1; //10%
         $limitSurface = 0.2; //20%
+        
+        if (isset($_GET['big']) && (int)$_GET['big'])
+        {
+            $pathImgOrigin = _IMAGES_BIG_ORIGIN_DIR_;
+            $dirname = "big_blanc_".($limitPercent*100)."_surf_".($limitSurface*100)."/";
+        }
+        else
+        {
+            $pathImgOrigin = _IMAGES_ORIGIN_DIR_;
+            $dirname = "blanc_".($limitPercent*100)."_surf_".($limitSurface*100)."/";
+        }
         
         $sql = "SELECT r.*,i.filename FROM " . DB_PREFIXE . "results as r
                     LEFT JOIN " . DB_PREFIXE . "images as i ON r.id_images = i.id_images
@@ -361,7 +371,7 @@ class Results {
         Db::getInstance()->query($sql);
         $aResults = Db::getInstance()->getAll();
         
-        $dirname = "blanc_".($limitPercent*100)."_surf_".($limitSurface*100)."/";
+        
         if (!is_dir($path_results.$dirname))
             mkdir($path_results.$dirname);
        
@@ -371,9 +381,9 @@ class Results {
             if (!file_exists($white_file))
             {
                 //get info images
-                $infoImg = getimagesize(_IMAGES_ORIGIN_DIR_.$aResult['filename']);
+                $infoImg = getimagesize($pathImgOrigin.$aResult['filename']);
                 
-                $im = Tools::LoadJpeg(_IMAGES_ORIGIN_DIR_.$aResult['filename']);
+                $im = Tools::LoadJpeg($pathImgOrigin.$aResult['filename']);
                 $white = imagecolorallocate($im,255,255,255); 
 
                 $sql = "SELECT * FROM " . DB_PREFIXE . "results_details
@@ -411,13 +421,22 @@ class Results {
     }
     
     protected function addWhiteResults_OCR_hOCR($id_method,$id_process,$path_results)
-    {
-        $pathImgOrigin = _IMAGES_ORIGIN_DIR_;
-        
+    {        
        // $limitPercent = 0.1; //10%
        // $limitSurface = 0.01; //1%
        $limitWidth = 0.1; //10%
        $limitHeight = 0.06; //6%
+       
+       if (isset($_GET['big']) && (int)$_GET['big'])
+       {
+           $pathImgOrigin = _IMAGES_BIG_ORIGIN_DIR_;
+           $dirname = "big_blanc_w_".($limitWidth*100)."_h_".($limitHeight*100)."/";
+       }
+       else
+       {
+           $pathImgOrigin = _IMAGES_ORIGIN_DIR_;
+           $dirname = "blanc_w_".($limitWidth*100)."_h_".($limitHeight*100)."/";
+       }
         
         $sql = "SELECT r.*,i.filename FROM " . DB_PREFIXE . "results as r
                     LEFT JOIN " . DB_PREFIXE . "images as i ON r.id_images = i.id_images
@@ -425,19 +444,19 @@ class Results {
         Db::getInstance()->query($sql);
         $aResults = Db::getInstance()->getAll();
         
-        $dirname = "blanc_w_".($limitWidth*100)."_h_".($limitHeight*100)."/";
         if (!is_dir($path_results.$dirname))
             mkdir($path_results.$dirname);
         
         foreach($aResults as $aResult)
         {
-            $white_file=$path_results.$dirname.$aResult['filename']."blanc_w_".($limitWidth*100)."_h_".($limitHeight*100);
+            $white_file=$path_results.$dirname.$aResult['filename']."_blanc_w_".($limitWidth*100)."_h_".($limitHeight*100);  
             if (!file_exists($white_file))
             {
+                echo $white_file;
                 //get info images
-                $infoImg = getimagesize(_IMAGES_ORIGIN_DIR_.$aResult['filename']);
+                $infoImg = getimagesize($pathImgOrigin.$aResult['filename']);
                 
-                $im = Tools::LoadJpeg(_IMAGES_ORIGIN_DIR_.$aResult['filename']);
+                $im = Tools::LoadJpeg($pathImgOrigin.$aResult['filename']);
                 $white = imagecolorallocate($im,255,255,255);
                 
                 $sql = "SELECT * FROM " . DB_PREFIXE . "results_details
