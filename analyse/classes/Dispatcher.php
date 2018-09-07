@@ -235,7 +235,7 @@ class Dispatcher
         {
           
             switch($_GET['action']) {
-                case 'index': echo "toto";
+                case 'index': 
                     break;
                 case "setImages":
                     (new Images)->doAction();
