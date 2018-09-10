@@ -63,12 +63,17 @@ class Analysis {
         
         //print_r($aResultsProcess);die();
         
+        $resumeProcessTotal = "<br>";
         $tableResults = '<div class="table">';
         
         $tableResults.= '<div class="table-row"><div class="table-cell">Image</div>';
         foreach ($aResultsProcess as $aResultProcess)
         {
             $tableResults.= '<div class="table-cell">'.$aResultProcess["method"]."_".$aResultProcess["version"].'</div>';
+            
+            $sql = "SELECT id_results FROM " . DB_PREFIXE . "results WHERE id_process=".$aResultProcess['id_process'];
+            Db::getInstance()->query($sql);
+            $resumeProcessTotal .= $aResultProcess["method"]."_".$aResultProcess["version"].' : '.Db::getInstance()->numRows()."<br>";
         }
         $tableResults.= '</div>'; //row
         foreach ($aResultImages as $aResultImage)
@@ -79,6 +84,8 @@ class Analysis {
                                 target="_blank">'.$aResultImage['filename'].'</a></div>';
             foreach ($aResultsProcess as $aResultProcess)
             {
+                
+                
                 $sql = "SELECT * FROM " . DB_PREFIXE . "results WHERE id_images = ".$aResultImage['id_images']." AND id_process = ".$aResultProcess['id_process'];
                 Db::getInstance()->query($sql);
                 $aResultResults = Db::getInstance()->getAll();
@@ -117,7 +124,7 @@ class Analysis {
         }
         
         $navLinks = '<div class="nav">'.$navLinks.'<div class="clearBoth"></div></div>';
-        return $navLinks.$tableResults.$navLinks;
+        return $resumeProcessTotal.$navLinks.$tableResults.$navLinks;
         
     }
     
@@ -131,6 +138,11 @@ class Analysis {
     }
     
     protected function getAnalysisZoneResults_TensorFlow_model2bis($id_results)
+    {
+        return $this->getAnalysisZoneResults_TensorFlow_model2($id_results);
+    }
+    
+    protected function getAnalysisZoneResults_TensorFlow_model1($id_results)
     {
         return $this->getAnalysisZoneResults_TensorFlow_model2($id_results);
     }
@@ -337,6 +349,11 @@ ctx.stroke();}*/';
         return $this->getAnalysisZoneDisplay_TensorFlow_model2($id_results,$color,$infoImg);
     }
     
+    protected function getAnalysisZoneDisplay_TensorFlow_model1($id_results,$color,$infoImg)
+    {
+        return $this->getAnalysisZoneDisplay_TensorFlow_model2($id_results,$color,$infoImg);
+    }
+    
     protected function getAnalysisZoneDisplay_OCR_hOCR($id_results,$color,$infoImg)
     {
         $limitWidth = $_GET['width']/100;
@@ -407,6 +424,7 @@ ctx.stroke();}*/';
     {
         
         $aPbZoneImages= array();
+        $aNbProcessTotal = array();
         $sql = "SELECT m.*,p.* FROM " . DB_PREFIXE . "method AS m LEFT JOIN " . DB_PREFIXE . "process AS p ON m.id_method = p.id_method";
         Db::getInstance()->query($sql);
         $aResultsProcess = Db::getInstance()->getAll();
@@ -416,20 +434,22 @@ ctx.stroke();}*/';
             
             $this->$getAnalysisPBZoneResultsFunction($aResultProcess['id_process'],$aPbZoneImages,$aNbProcess);
             
-           
+            $sql = "SELECT id_results FROM " . DB_PREFIXE . "results WHERE id_process=".$aResultProcess['id_process'];
+            Db::getInstance()->query($sql);
+            $aNbProcessTotal[$aResultProcess['id_process']]=Db::getInstance()->numRows();
             
             
         }
         
 
-        $resume = '';
+        $resume = '<br>';
         $tableResults = '<div class="table">';
         
         $tableResults.= '<div class="table-row"><div class="table-cell">Image</div>';
         foreach ($aResultsProcess as $aResultProcess)
         {
             $tableResults.= '<div class="table-cell">'.$aResultProcess["method"]."_".$aResultProcess["version"].'</div>';
-            $resume .= $aResultProcess["method"].' '.$aResultProcess["version"].' : '.$aNbProcess[$aResultProcess['id_process']].'<br>';
+            $resume .= $aResultProcess["method"].' '.$aResultProcess["version"].' : '.$aNbProcess[$aResultProcess['id_process']].'('.$aNbProcessTotal[$aResultProcess['id_process']].')<br>';
         }
         $tableResults.= '</div>'; //row
         foreach ($aPbZoneImages as $filename => $pbZoneImages)
@@ -496,6 +516,11 @@ ctx.stroke();}*/';
     }
     
     protected function getAnalysisPBZoneResults_TensorFlow_model2bis($id_process,&$aPbZoneImages,&$aNbProcess)
+    {
+        $this->getAnalysisPBZoneResults_TensorFlow_model2($id_process,$aPbZoneImages,$aNbProcess);
+    }
+    
+    protected function getAnalysisPBZoneResults_TensorFlow_model1($id_process,&$aPbZoneImages,&$aNbProcess)
     {
         $this->getAnalysisPBZoneResults_TensorFlow_model2($id_process,$aPbZoneImages,$aNbProcess);
     }

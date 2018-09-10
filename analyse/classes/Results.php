@@ -182,6 +182,11 @@ class Results {
         return $this->addResults_TensorFlow_model2($id_method, $id_process, $path_results);
     }
     
+    protected function addResults_TensorFlow_model1($id_method,$id_process,$path_results)
+    {
+        return $this->addResults_TensorFlow_model2($id_method, $id_process, $path_results);
+    }
+    
     protected function addResults_OCR_hOCR($id_method,$id_process,$path_results)
     {
 
@@ -426,6 +431,11 @@ class Results {
     }
     
     protected function addWhiteResults_TensorFlow_model2bis($id_method,$id_process,$path_results)
+    {
+        $this->addWhiteResults_TensorFlow_model2($id_method, $id_process, $path_results);
+    }
+    
+    protected function addWhiteResults_TensorFlow_model1($id_method,$id_process,$path_results)
     {
         $this->addWhiteResults_TensorFlow_model2($id_method, $id_process, $path_results);
     }
