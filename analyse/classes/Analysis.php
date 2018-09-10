@@ -32,8 +32,6 @@ class Analysis {
         global $content;
          
         $file = file_get_contents(_TEMPLATES_DIR_.'Analysis/getAnalysisZone.html');
-
-       // $content .= file_get_contents(_TEMPLATES_DIR_.'Analysis/getAnalysisZone.html');
         
         if (isset($_GET['percent']))
         {
@@ -105,17 +103,21 @@ class Analysis {
             $tableResults.= '</div>'; //fin row
         }
         $tableResults .= '</div>'; //fin table
+        
+        $navLinks = "";
         if ($_GET['offset'] != 0)
         {
-            $tableResults .= '<a href="analysis/zone/get/?percent='.$_GET['percent'].'&surface='.$_GET['surface'].'&width='.
-                $_GET['width'].'&height='.$_GET['height'].'&offset='.($_GET['offset']-$limit).'">prev</a> ';
+            $navLinks .= '<a href="analysis/zone/get/?percent='.$_GET['percent'].'&surface='.$_GET['surface'].'&width='.
+                $_GET['width'].'&height='.$_GET['height'].'&offset='.($_GET['offset']-$limit).'" class="navButton prev">prev</a> ';
         }
         if (($_GET['offset']+$limit)<$totalImages)
         {
-            $tableResults .= ' <a href="analysis/zone/get/?percent='.$_GET['percent'].'&surface='.$_GET['surface'].'&width='. 
-                $_GET['width'].'&height='.$_GET['height'].'&offset='.($_GET['offset']+$limit).'">next</a>';
+            $navLinks .= ' <a href="analysis/zone/get/?percent='.$_GET['percent'].'&surface='.$_GET['surface'].'&width='. 
+                $_GET['width'].'&height='.$_GET['height'].'&offset='.($_GET['offset']+$limit).'" class="navButton next">next</a>';
         }
-        return $tableResults;
+        
+        $navLinks = '<div class="nav">'.$navLinks.'<div class="clearBoth"></div></div>';
+        return $navLinks.$tableResults.$navLinks;
         
     }
     
@@ -230,7 +232,7 @@ ctx.stroke();}*/';
             {
                 $navImages .= '<a href="analysis/zone/display/get/?percent='.$_GET['percent'].'&surface='.$_GET['surface'].'&width='.
                                 $_GET['width'].'&height='.$_GET['height'].'&filename='.$aResultsPrevious[0]['filename'].'&big=0"
-                                style="color:black">Prev.</a> ';
+                                 class="navButton prev">Prev.</a> ';
             }
             $sql = "SELECT filename FROM " . DB_PREFIXE . "images WHERE id_images > ".$aResultsProcess[0]['id_images']." ORDER BY id_images ASC LIMIT 0,1";
             Db::getInstance()->query($sql);
@@ -239,7 +241,7 @@ ctx.stroke();}*/';
             {
                 $navImages .= '<a href="analysis/zone/display/get/?percent='.$_GET['percent'].'&surface='.$_GET['surface'].'&width='.
                     $_GET['width'].'&height='.$_GET['height'].'&filename='.$aResultsNext[0]['filename'].'&big=0"
-                                style="color:black">Next.</a> ';
+                                 class="navButton next">Next.</a> ';
             }
             
             foreach($aResultsProcess as $key => $aResultProcess)
@@ -275,7 +277,9 @@ ctx.stroke();}*/';
             $contentZone .= 'Image non trouvée.';
         }
         
-        $content = $navImages.'<br><br>'.$selecteur.$contentZone;
+        $navImages = '<div class="nav navImages">'.$navImages.'<div class="clearBoth"></div></div>';
+        
+        $content = $navImages.$selecteur.$contentZone.$navImages;
 
         
     }

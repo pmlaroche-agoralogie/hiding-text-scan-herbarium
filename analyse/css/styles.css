@@ -1,0 +1,14 @@
+@charset "UTF-8";
+
+body {font-family: Arial, Helvetica, sans-serif;}
+a {color:grey}
+
+.clearBoth {clear:both;}
+.table {display:table;width: 100%;}
+.table-row {display:table-row}
+.table-cell {display:table-cell;text-align:center;padding : 5px;border: 1px solid grey;vertical-align:middle}
+
+.button {color:white;background:green;display:inline-block;padding:2px 5px; border-radius:5px;margin:2px 0;cursor:pointer}
+.navButton{color:white;background:grey;padding:2px 5px; border-radius:5px;margin:2px 0;display:inline-block;text-decoration:none;}
+.navButton.next{float:right;}
+.navImages {width:500px;}

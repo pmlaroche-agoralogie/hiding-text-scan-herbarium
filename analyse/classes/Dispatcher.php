@@ -236,6 +236,8 @@ class Dispatcher
           
             switch($_GET['action']) {
                 case 'index': 
+                    global $content;
+                    $content = "";
                     break;
                 case "setImages":
                     (new Images)->doAction();
