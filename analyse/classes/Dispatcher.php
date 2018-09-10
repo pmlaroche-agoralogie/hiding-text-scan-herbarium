@@ -76,6 +76,12 @@ class Dispatcher
             'keywords' => array(),
         )
         ,
+        'getResultsCleanDB_rule' => array (
+            'rule' => 'cleandb/results/get/',
+            'action' => 'getResultsCleanDB',
+            'keywords' => array(),
+        )
+        ,
         'wantCoffee_rule' => array (
             'rule' => 'coffee',
             'action' => 'wantCoffee',
@@ -253,6 +259,9 @@ class Dispatcher
                 case "getAnalysisZoneDisplay":
                 case "getAnalysisPBZone":
                     (new Analysis)->doAction();
+                    break;
+                case "getResultsCleanDB":
+                    (new CleanDB)->doAction();
                     break;
                 case 'wantCoffee':
                     Tools::stopError('418',"I'm a teapot","I'm a teapot",false);

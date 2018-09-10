@@ -11,6 +11,7 @@ $aPageTitle = array(
                 'getAnalysisZone' => 'Analyse des zones',
                 'getAnalysisPBZone' => 'Mise en avant des images à potentiels problèmes',
                 'getAnalysisZoneDisplay' => 'Simulateur de zone',
+                'getResultsCleanDB' => 'Nettoyage des tables résultats (doublons)',
     );
 
 //Objet database
@@ -34,6 +35,7 @@ Dispatcher::getInstance()->dispatch();
 	<li><a href="results/white/set/"><?php echo $aPageTitle['setWhiteResults'];?></a></li>
 	<li><a href="analysis/zone/get/"><?php echo $aPageTitle['getAnalysisZone'];?></a></li>
 	<li><a href="analysis/zone/pb/get/"><?php echo $aPageTitle['getAnalysisPBZone'];?></a></li>
+	<li><a href="cleandb/results/get/"><?php echo $aPageTitle['getResultsCleanDB'];?></a></li>
 </ul>
 <hr/>
 <h1><?php echo $title;?></h1>
