@@ -146,7 +146,7 @@ class Tools
         
         /* Traitement en cas d'échec */
         if(!$im){
-            echo "<br>ouverture de l'image : 0";
+           // echo "<br>ouverture de l'image : 0";
             /* Création d'une image vide */
             $im  = imagecreatetruecolor(150, 30);
             $bgc = imagecolorallocate($im, 255, 255, 255);
@@ -157,7 +157,7 @@ class Tools
             /* On y affiche un message d'erreur */
             imagestring($im, 1, 5, 5, 'Erreur de chargement ' . $imgname, $tc);
         }else{
-            echo "<br>ouverture de l'image : 1";
+           // echo "<br>ouverture de l'image : 1";
         }
         
         return $im;

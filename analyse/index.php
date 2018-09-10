@@ -3,6 +3,16 @@ require(dirname(__FILE__).'/config/config.inc.php');
 require_once(_CLASS_DIR_.'Autoload.php');
 spl_autoload_register(array(Autoload::getInstance(), 'load'));
 
+$aPageTitle = array(
+                'index' => 'Bienvenue.',
+                'setImages' => 'Ajouter des images',
+                'setResults' => 'Ajouter des résultats',
+                'setWhiteResults' => 'Blanchir des images',
+                'getAnalysisZone' => 'Analyse des zones',
+                'getAnalysisPBZone' => 'Mise en avant des images à potentiels problèmes',
+                'getAnalysisZoneDisplay' => 'Simulateur de zone',
+    );
+
 //Objet database
 Db::getInstance();
 
@@ -19,13 +29,14 @@ Dispatcher::getInstance()->dispatch();
 <body>
 <header>
 <h2>Menu</h2>
-<ul><li><a href="images/set/">Ajouter des images</a></li>
-	<li><a href="results/set/">Ajouter des résultats</a></li>
-	<li><a href="results/white/set/">Blanchir des images</a></li>
-	<li><a href="analysis/zone/get/">Analyse des zones</a></li>
-	<li><a href="analysis/zone/pb/get/">Mise en avant des images à potentiels problèmes</a></li>
+<ul><li><a href="images/set/"><?php echo $aPageTitle['setImages'];?></a></li>
+	<li><a href="results/set/"><?php echo $aPageTitle['setResults'];?></a></li>
+	<li><a href="results/white/set/"><?php echo $aPageTitle['setWhiteResults'];?></a></li>
+	<li><a href="analysis/zone/get/"><?php echo $aPageTitle['getAnalysisZone'];?></a></li>
+	<li><a href="analysis/zone/pb/get/"><?php echo $aPageTitle['getAnalysisPBZone'];?></a></li>
 </ul>
 <hr/>
+<h1><?php echo $title;?></h1>
 <?php echo $content;?>
 </header>
 </body>

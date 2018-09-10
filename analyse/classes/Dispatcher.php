@@ -233,6 +233,9 @@ class Dispatcher
 
         if (isset($_GET['action']) && $_GET['action']!= '')
         {
+            global $title;
+            global $aPageTitle;
+            $title = $aPageTitle[$_GET['action']];
           
             switch($_GET['action']) {
                 case 'index': 

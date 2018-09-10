@@ -28,11 +28,13 @@ class Results {
     {
         global $content;
         
+        $addresults = "";
+        
         if (isset($_GET['method']))
         {
             $id_method = (int)explode('-',$_GET['method'])[0];
             $id_process = (int) explode('-',$_GET['process'])[0];
-            $this->addResults($id_method, $id_process);
+            $addresults = $this->addResults($id_method, $id_process);
         }
         
         $select = "";
@@ -74,11 +76,11 @@ class Results {
         }
         
         $content .= $select;
+        $content .= $addresults;
     }
     
     protected function addResults($id_method,$id_process)
     {
-        
         $sql = "SELECT * FROM " . DB_PREFIXE . "method WHERE id_method = ".$id_method;
         Db::getInstance()->query($sql);
         $aResultMethod = Db::getInstance()->getAll();
@@ -94,13 +96,15 @@ class Results {
         
         $addResultsFunction = "addResults_".$aResultMethod[0]["method"]."_".$aResultProcess[0]["version"];
         
-        $document = $this->$addResultsFunction($id_method,$id_process,$path_results);
+        $addresults = $this->$addResultsFunction($id_method,$id_process,$path_results);
+        return $addresults;
         
             
     }
     
     protected function addResults_TensorFlow_model2($id_method,$id_process,$path_results)
     {
+        
         $files = scandir($path_results);
         
         $nb_img = 0;
@@ -164,15 +168,18 @@ class Results {
             }
             
         }
-        echo 'nb images : '.$nb_img."<br>\n";
-        echo 'nb lines : '.$nb_lines."<br>\n";
+        
+        $addresults = "<br>\n".'nb images : '.$nb_img."<br>\n";
+        $addresults .= 'nb lines : '.$nb_lines."<br>\n";
+        
+        return $addresults;
         
         
     }
     
     protected function addResults_TensorFlow_model2bis($id_method,$id_process,$path_results)
     {
-        $this->addResults_TensorFlow_model2($id_method, $id_process, $path_results);
+        return $this->addResults_TensorFlow_model2($id_method, $id_process, $path_results);
     }
     
     protected function addResults_OCR_hOCR($id_method,$id_process,$path_results)
@@ -270,8 +277,11 @@ class Results {
                 }
             }
         }
-        echo 'nb images : '.$nb_img."<br>\n";
-        echo 'nb lines : '.$nb_lines."<br>\n";
+        
+        $addresults = "<br>\n".'nb images : '.$nb_img."<br>\n";
+        $addresults .= 'nb lines : '.$nb_lines."<br>\n";
+        
+        return $addresults;
         
     }
     
@@ -452,7 +462,7 @@ class Results {
             $white_file=$path_results.$dirname.$aResult['filename']."_blanc_w_".($limitWidth*100)."_h_".($limitHeight*100);  
             if (!file_exists($white_file))
             {
-                echo $white_file;
+               
                 //get info images
                 $infoImg = getimagesize($pathImgOrigin.$aResult['filename']);
                 
