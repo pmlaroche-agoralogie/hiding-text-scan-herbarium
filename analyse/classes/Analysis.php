@@ -52,7 +52,7 @@ class Analysis {
         Db::getInstance()->query($sql);
         $totalImages = Db::getInstance()->numRows();
         
-        $sql = "SELECT * FROM " . DB_PREFIXE . "images LIMIT ".($_GET['offset']+$limit).",".$limit;
+        $sql = "SELECT * FROM " . DB_PREFIXE . "images ORDER BY filename LIMIT ".($_GET['offset']+$limit).",".$limit;
         Db::getInstance()->query($sql);
         $aResultImages = Db::getInstance()->getAll();
         
@@ -452,6 +452,7 @@ ctx.stroke();}*/';
             $resume .= $aResultProcess["method"].' '.$aResultProcess["version"].' : '.$aNbProcess[$aResultProcess['id_process']].'('.$aNbProcessTotal[$aResultProcess['id_process']].')<br>';
         }
         $tableResults.= '</div>'; //row
+        ksort($aPbZoneImages);
         foreach ($aPbZoneImages as $filename => $pbZoneImages)
         {
             $tableResults.= '<div class="table-row"><div class="table-cell">
