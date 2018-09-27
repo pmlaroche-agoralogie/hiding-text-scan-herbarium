@@ -40,7 +40,7 @@ class Analysis {
             $content .=  $this->getAnalysisZoneResults();
         }
         else 
-            $content .= str_replace('##percent##','10',str_replace('##surf##','20',str_replace('##width##','10',str_replace('##height##','6',$file))));
+            $content .= str_replace('##percent##','40',str_replace('##surf##','20',str_replace('##width##','10',str_replace('##height##','6',$file))));
             
     }
     
@@ -417,7 +417,7 @@ ctx.stroke();}*/';
             $content .=  $this->getAnalysisPBZoneResults();
         }
         else
-            $content .= str_replace('##percent##','10',str_replace('##surf##','20',str_replace('##width##','10',str_replace('##height##','6',$file))));
+            $content .= str_replace('##percent##','40',str_replace('##surf##','20',str_replace('##width##','10',str_replace('##height##','6',$file))));
     }
     
     protected function getAnalysisPBZoneResults()
